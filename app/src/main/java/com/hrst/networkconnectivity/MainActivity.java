@@ -17,11 +17,16 @@ public class MainActivity extends AppCompatActivity {
     final private String TAG = "MainActivity";
 
     // Start the initial runnable task by posting through the handler
-    public Handler handler = new Handler(Looper.getMainLooper())  {
+    public Handler mHandler = new Handler(Looper.getMainLooper())  {
         @Override
         public void handleMessage(@NonNull Message msg) {
-            Log.i(TAG, "Msg: " + msg);
             super.handleMessage(msg);
+            if (msg.arg1 == 1) {
+                Log.i(TAG, "ONLINE");
+            } else {
+                Log.i(TAG, "OFFLINE");
+            }
+
         }
     };
 
@@ -35,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        Network network = new Network("https://www.google.com", 2000);
-        handler.post(network.ping);
+        Network network = new Network("https://www.google.com", 2000, mHandler);
+        mHandler.post(network.ping);
     }
 }

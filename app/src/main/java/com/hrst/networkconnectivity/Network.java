@@ -13,12 +13,14 @@ import java.net.URLConnection;
 public class Network {
     final private String TAG = "Network";
 
-    private final String mUrl;
-    private final int mTimeout;
+    final private String mUrl;
+    final private int mTimeout;
+    final private Handler mThreadHandler;
 
-    public Network(String url, int timeout) {
+    public Network(String url, int timeout, Handler threadHandler) {
         mUrl = url;
         mTimeout = timeout;
+        mThreadHandler = threadHandler;
     }
 
     /**
@@ -44,12 +46,16 @@ public class Network {
         @Override
         public void run() {
             Thread t = new Thread(() -> {
+                Message msg = new Message();
                 if (isOnline()) {
                     Log.i(TAG, "ONLINE");
-                    MainActivity.this.handler.sendMessage("ONLINE");
+                    msg.arg1 = 1;
                 } else {
                     Log.i(TAG, "OFFLINE");
+                    msg.arg1 = 0;
+
                 }
+                mThreadHandler.sendMessage(msg);
             });
             t.start();
 
