@@ -5,8 +5,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -16,6 +14,8 @@ public class Network {
     final private String mUrl;
     final private int mTimeout;
     final private Handler mThreadHandler;
+
+    private boolean mWasOnline = false;
 
     public Network(String url, int timeout, Handler threadHandler) {
         mUrl = url;
@@ -34,7 +34,6 @@ public class Network {
             connection.connect();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
@@ -49,20 +48,26 @@ public class Network {
                 Message msg = new Message();
                 if (isOnline()) {
                     Log.i(TAG, "ONLINE");
-                    msg.arg1 = 1;
+                    if (!mWasOnline) {
+                        msg.arg1 = 1;
+                        mThreadHandler.sendMessage(msg);
+                    }
+                    mWasOnline = true;
                 } else {
                     Log.i(TAG, "OFFLINE");
-                    msg.arg1 = 0;
-
+                    if (mWasOnline) {
+                        msg.arg1 = 0;
+                        mThreadHandler.sendMessage(msg);
+                    }
+                    mWasOnline = false;
                 }
-                mThreadHandler.sendMessage(msg);
             });
             t.start();
 
-            // Repeat this the same runnable code block again another 2 seconds
+            // Repeat this the same runnable code block again
             // 'this' is referencing the Runnable object
             Handler handler = new Handler(Looper.getMainLooper());
-            handler.postDelayed(this, 2000);
+            handler.postDelayed(this, mTimeout + 500);
         }
     };
 }

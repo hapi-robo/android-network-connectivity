@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Log.i(TAG, "OFFLINE");
             }
-
         }
     };
 
